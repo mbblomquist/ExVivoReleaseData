@@ -81,23 +81,34 @@ specFldIdx = find( [ DirInfo.isdir ] & ~contains( { DirInfo.name }, { '.', '..' 
 numSpec = size( specFldIdx, 1 ) ; % Number of directories (in this case, number of ligaments) in baseDir
 
 % for iSpec = 1 : numSpec % go through each speciman
-    iSpec = 4; % individual speciman
-    offset = 0; % 1 if getting rid of first trial, 0 if keeping first trial
+    iSpec = 9; % individual speciman
+    iteration = 1; % accumulator
     TempSpecDirInfo = dir( fullfile( baseDir, DirInfo( specFldIdx( iSpec ) ).name, '\*.lvm' ) ) ; % temp directory
     tempNumTrials = size( TempSpecDirInfo, 1 ) ; % num trials in temp directory
     tempSpecName = strrep( DirInfo( specFldIdx( iSpec ) ).name, '-', '_' ) ; % replaces all hyphens with underscores in names of files
-    for iTrial = 1+offset : tempNumTrials % go through each trial of speciman      
+    tempTrialArray = 1 : tempNumTrials ;
+    
+    poorTrials = [1, 5, 6, 7, 8, 9, 10, 11, 12, 13] ;
+    
+    goodTrials = ~ismember(tempTrialArray,poorTrials).*tempTrialArray;
+    goodTrials = goodTrials(goodTrials~=0);
+    
+    for iTrial = goodTrials % go through each good trial of speciman      
         filenames.lvm = ... % ... is continuation
             fullfile( baseDir, DirInfo( specFldIdx( iSpec ) ).name, TempSpecDirInfo( iTrial ).name ) ; % concatenates original filename with numTrial name
         Output = waveSpeedCalcGit(filenames,options); % waveSpeedCalcGit on filenames with options set earlier
-        Data.( tempSpecName ).ws{ iTrial-offset, 1 } = Output.processedData.waveSpeed.filt.push{ 1 } ; % Wave speed values stored in Data
-        Data.( tempSpecName ).tension{ iTrial-offset, 1 } = Output.processedData.load.push ; % Tension values stored in Data
+        Data.( tempSpecName ).ws{ iteration, 1 } = Output.processedData.waveSpeed.filt.push{ 1 } ; % Wave speed values stored in Data
+        Data.( tempSpecName ).tension{ iteration, 1 } = Output.processedData.load.push ; % Tension values stored in Data
+        iteration = iteration + 1;
     end
+    
+    %poorTrials=~ismember(x,y).*x
+    %poorTrials = poorTrials(poorTrials~=0)
     
 %     clear Temp* temp*
 % end
 
-save('G:\My Drive\UW NMBL\LigamentTensiometer\nihR21EB024957_2018-04-01\data\exVivoRelease\porcine_18_0470_03_R_MCL.mat','Data')
+save('G:\My Drive\UW NMBL\LigamentTensiometer\nihR21EB024957_2018-04-01\data\exVivoRelease\porcine_18_0476_01_L_LCL.mat','Data')
 
 % %% ----------------- Plot data ----------------- %%
 % 
