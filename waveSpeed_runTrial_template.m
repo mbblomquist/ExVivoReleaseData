@@ -27,7 +27,7 @@ clear, clc
 % 
 % filenames.lvm = [ filePath, fileName ] ;
 
-[filename, filepath] = uigetfile('G:\My Drive\UW NMBL\LigamentTensiometer\nihR21EB024957_2018-04-01\data\exVivoRelease\porcine_18_0476_01_L_LCL\*.lvm') ;
+[filename, filepath] = uigetfile('G:\My Drive\UW NMBL\LigamentTensiometer\nihR21EB024957_2018-04-01\data\exVivoPrePost\C170680-R\tka\*.lvm') ;
 filenames.lvm = fullfile(filepath,filename) ;
 
 
@@ -37,7 +37,7 @@ options.waveSpeedMethod = 'XCorr'; % specify which methods to use to calculate w
 
 switch options.waveSpeedMethod
     case 'XCorr' % cross-correlation method
-        options.window = [ 0, 0.6 ] ; % specify which section of first signal will be time-shifted to best match the second; options [ <#>, <#> ], adaptive1, adaptive2
+        options.window = [ 0, 0.8 ] ; % specify which section of first signal will be time-shifted to best match the second; options [ <#>, <#> ], adaptive1, adaptive2
 %         options.window = 'adaptive1' ;
     case 'frequency' % frequency method, which is useful during ex vivo testing with non-contact sensors when a standing wave develops
        options.peakFindMethod = 'auto' ; % specify whethre peak of FFT is computed automatically (auto) or manually (manual)
@@ -48,18 +48,18 @@ options.signCorrection = [ 1, 1 ] ; % allows for correcting data if one accelero
 options.maxDelay = 1 ; % specify the max time shift in ms for the cross-correlation
 options.travelDist = 5 ; % specify the distance between accelerometers/lasers
 options.takeDerivYesNo = 0 ; % specify whether to compute the derivative of the input signals; sometimes useful with laser data
-options.filterBandWave = [150 5000] ; % specify limits of band pass filter; lower limit usually 100-150, upper limit usually 1500-5000
+options.filterBandWave = [150 1500] ; % specify limits of band pass filter; lower limit usually 100-150, upper limit usually 1500-5000
 options.deltaWSThresh = 25 ; % specify theshold for changes in wave speed from one data point to the next
 options.minCorr = 0.5 ; % specify the minimum correlation between the two signals that can be considered the peak
 options.minSegLength = 1 ; % specity the minimum number of points in a row that are not excluded by deltaWSThresh or minCorr
 
 % ----------- input sensor params ----------- %
 options.numAcc = 2 ; % specify number of accelerometers/lasers used
-options.accColumns = [ 2, 3 ] ; % specify columns in data file that contain accelerometer/laser data
+options.accColumns = [ 3, 2 ] ; % specify columns in data file that contain accelerometer/laser data
 options.collectionMethod = 'accelerometer' ; % specify which sensors were used to collect the data; options: accelerometer, laser, ultrasound
 
 % ----------- input sensor params ----------- %
-options.loadDataYesNo = 1 ; % specify whether load data is included ( 1 = yes, 0 = no )
+options.loadDataYesNo = 0 ; % specify whether load data is included ( 1 = yes, 0 = no )
 options.loadColumns = [ 4 ] ; % specify columns in data file that contain load data
 options.tapDataYesNo = 1 ; % specify whether tapper data is included ( 1 = yes, 0 = no )
 options.tapperColumns = 5 ; % specify columns in data file that contain tapper data
@@ -76,6 +76,7 @@ output = waveSpeedCalcGit( filenames, options ) ;
 
 wsVector=output.processedData.waveSpeed.filt.push{1,1};
 ws = mean(wsVector)
-loadVector=cellfun(@mean,output.processedData.load.push);
-load = mean(loadVector)
+sd = std(wsVector)
+% loadVector=cellfun(@mean,output.processedData.load.push);
+% load = mean(loadVector)
 % save('/Users/mbb201/Documents/MATLAB/TipGeometry_9_30_2019/LaserPos2.mat','wsVector','loadVector');
